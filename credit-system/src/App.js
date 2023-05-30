@@ -1,58 +1,42 @@
-import abi from "./contract/Chai.json";
-import { useState, useEffect } from "react";
-import { ethers } from "ethers";
-import "./App.css";
+import { useState } from "react";
 
-// 0x72de76c327FDAAb3C435459e6Bb4222ABbe354C4
+import "./App.css";
+import Wallet from "./Components/Wallet/Wallet";
+import AddToCreditSystem from "./Components/AddToCreditSystem/AddToCreditSystem";
+import Transfer from "./Components/Transfer/Transfer";
+import ExtraToken from "./Components/ExtraToken/ExtraToken";
 
 function App() {
   const [state, setState] = useState({
-    provider: null,
     signer: null,
     contract: null,
   });
-  const [account, setaccount] = useState("None ");
-  useEffect(() => {
-    const connectWallet = async () => {
-      const contractAddress = "";
-      const contractAbi = abi.abi;
-      try {
-        const { ethereum } = window;
 
-        if (ethereum) {
-          const account = await ethereum.request({
-            method: "eth_requestAccounts",
-          });
+  const [balance, setBalance] = useState(0);
 
-          window.ethereum.on("ChainChanged", () => {
-            window.location.reload();
-          });
+  const saveState = (newState) => {
+    setState(newState);
+  };
 
-          window.ethereum.on("accountsChanged", () => {
-            window.location.reload();
-          });
-          const provider = new ethers.providers.Web3Provider(ethereum);
-          const signer = provider.getSigner();
-          const contract = new ethers.Contract(
-            contractAddress,
-            contractAbi,
-            signer
-          );
-          setaccount(account);
-          setState({ provider, signer, contract });
-        } else {
-          alert("please install Metamask");
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    connectWallet();
-  }, []);
-  //console.log(state);
+  const saveBalance = (newBal) => {
+    setBalance(newBal);
+  };
+
   return (
-    <div className='App'>
-      <p>Connected Account -{account}</p>
+    <div className="App">
+      <Wallet saveState={saveState} saveBalance={saveBalance} />
+      <div className="display-balance">
+        <span>User Balance:</span> {balance} <span>TT</span>
+      </div>
+      <Transfer state={state} saveBalance={saveBalance} />
+
+      <h1>Only Owner accessible functionalities:</h1>
+
+      <h4>To add a user to credit system</h4>
+      <AddToCreditSystem state={state} />
+
+      <h4>To mint extra token to a user</h4>
+      <ExtraToken state={state} />
     </div>
   );
 }
